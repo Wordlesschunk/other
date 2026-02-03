@@ -155,6 +155,11 @@ class ServerTemplateRepository
         return $this->templates[$id] ?? null;
     }
 
+    public function getCategoryForTemplate(string $templateId): ?string
+    {
+        return $this->mockDbRows[$templateId]['category'] ?? null;
+    }
+
     /** @return array<string, string> [name => id] */
     public function getCategoryChoices(): array
     {

@@ -1,4 +1,55 @@
 <div {{ attributes }}>
+    {# Saved Configs List #}
+    <div class="mb-4">
+        <h3>Saved Servers</h3>
+        {% if this.savedConfigs is empty %}
+            <p class="text-muted">No saved configurations yet.</p>
+        {% else %}
+            <div class="list-group mb-3">
+                {% for config in this.savedConfigs %}
+                    <button 
+                        type="button"
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ loadedConfigId == config.id ? 'active' : '' }}"
+                        data-action="live#action"
+                        data-live-action-param="loadConfig"
+                        data-live-config-id-param="{{ config.id }}"
+                    >
+                        <div>
+                            <strong>{{ config.name }}</strong>
+                            <small class="d-block text-{{ loadedConfigId == config.id ? 'light' : 'muted' }}">
+                                Template: {{ config.templateId }}
+                            </small>
+                        </div>
+                        <span class="badge bg-{{ loadedConfigId == config.id ? 'light text-dark' : 'secondary' }}">
+                            {{ config.createdAt|date('M j, Y') }}
+                        </span>
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    {# Form Section #}
+    <div class="mb-3">
+        <h3>
+            {% if loadedConfigId %}
+                Editing: {{ loadedConfigName }}
+                <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-secondary ms-2"
+                    data-action="live#action"
+                    data-live-action-param="clearLoaded"
+                >
+                    New Server
+                </button>
+            {% else %}
+                New Server Configuration
+            {% endif %}
+        </h3>
+    </div>
+
     {{ form_start(form) }}
     
     <div class="mb-3">
@@ -17,6 +68,10 @@
             </div>
         {% endif %}
     {% endfor %}
+
+    <button type="submit" class="btn btn-primary">
+        {{ loadedConfigId ? 'Update Server' : 'Create Server' }}
+    </button>
 
     {{ form_end(form) }}
 </div>
