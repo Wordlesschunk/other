@@ -4,6 +4,7 @@ namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfonycasts\DynamicForms\DependentField;
@@ -32,10 +33,81 @@ class MealPlannerForm extends AbstractType
         ],
     ];
 
-    private const PIZZA_SIZES = [
-        'Small' => 'small',
-        'Medium' => 'medium',
-        'Large' => 'large',
+    /**
+     * Extra fields configuration per food item.
+     * Each food can have multiple extra fields with their own settings.
+     */
+    private const EXTRA_FIELDS = [
+        'pizza' => [
+            'pizzaSize' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'Small' => 'small',
+                        'Medium' => 'medium',
+                        'Large' => 'large',
+                    ],
+                    'placeholder' => 'What size pizza?',
+                    'required' => true,
+                ],
+            ],
+            'toppings' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'Pepperoni' => 'pepperoni',
+                        'Mushrooms' => 'mushrooms',
+                        'Olives' => 'olives',
+                        'Extra Cheese' => 'extra_cheese',
+                    ],
+                    'placeholder' => 'Choose a topping',
+                    'required' => false,
+                ],
+            ],
+        ],
+        'sandwich' => [
+            'bread' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'White' => 'white',
+                        'Wheat' => 'wheat',
+                        'Sourdough' => 'sourdough',
+                    ],
+                    'placeholder' => 'Choose bread type',
+                    'required' => true,
+                ],
+            ],
+        ],
+        'pasta' => [
+            'sauce' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'Marinara' => 'marinara',
+                        'Alfredo' => 'alfredo',
+                        'Pesto' => 'pesto',
+                    ],
+                    'placeholder' => 'Choose a sauce',
+                    'required' => true,
+                ],
+            ],
+        ],
+        'cereal' => [
+            'milk' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'Whole' => 'whole',
+                        'Skim' => 'skim',
+                        'Oat' => 'oat',
+                        'Almond' => 'almond',
+                    ],
+                    'placeholder' => 'Choose milk type',
+                    'required' => false,
+                ],
+            ],
+        ],
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -56,19 +128,20 @@ class MealPlannerForm extends AbstractType
                         : 'Select a meal first',
                     'disabled' => null === $meal,
                 ]);
-            })
-
-            ->addDependent('pizzaSize', 'mainFood', static function (DependentField $field, ?string $food) {
-                if ($food !== 'pizza') {
-                    return;
-                }
-
-                $field->add(ChoiceType::class, [
-                    'choices' => self::PIZZA_SIZES,
-                    'placeholder' => 'What size pizza?',
-                    'required' => true,
-                ]);
             });
+
+        // Dynamically add extra fields based on the EXTRA_FIELDS configuration
+        foreach (self::EXTRA_FIELDS as $food => $fields) {
+            foreach ($fields as $fieldName => $fieldConfig) {
+                $builder->addDependent($fieldName, 'mainFood', static function (DependentField $field, ?string $selectedFood) use ($food, $fieldConfig) {
+                    if ($selectedFood !== $food) {
+                        return;
+                    }
+
+                    $field->add($fieldConfig['type'], $fieldConfig['options']);
+                });
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
