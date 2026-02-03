@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Model\ExtraField;
 use App\Repository\ServerTemplateRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -35,9 +34,6 @@ class ServerTemplate
 
     #[ORM\Column(type: 'json')]
     private array $config = [];
-
-    /** @var ExtraField[]|null */
-    private ?array $extraFields = null;
 
     public function __construct(string $id, string $name, string $category = '')
     {
@@ -81,33 +77,31 @@ class ServerTemplate
     public function setConfig(array $config): static
     {
         $this->config = $config;
-        $this->extraFields = null;
         return $this;
     }
 
-    /** @return ExtraField[] */
-    public function getExtraFields(): array
+    /**
+     * @return array<array{name: string, type: string, options: array}>
+     */
+    public function getFields(): array
     {
-        if ($this->extraFields !== null) {
-            return $this->extraFields;
-        }
-
-        $this->extraFields = [];
-        $fields = $this->config['fields'] ?? [];
-
-        foreach ($fields as $fieldDef) {
-            $fieldType = self::TYPE_MAP[$fieldDef['type']] ?? null;
-            if (!$fieldType) {
-                continue;
+        $result = [];
+        foreach ($this->config['fields'] ?? [] as $field) {
+            $formType = self::TYPE_MAP[$field['type']] ?? null;
+            if ($formType) {
+                $result[] = [
+                    'name' => $field['name'],
+                    'type' => $formType,
+                    'options' => $field['options'] ?? [],
+                ];
             }
-
-            $this->extraFields[] = new ExtraField(
-                $fieldDef['name'],
-                $fieldType,
-                $fieldDef['options'] ?? []
-            );
         }
+        return $result;
+    }
 
-        return $this->extraFields;
+    /** @return string[] */
+    public function getFieldNames(): array
+    {
+        return array_column($this->config['fields'] ?? [], 'name');
     }
 }

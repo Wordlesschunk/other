@@ -41,17 +41,17 @@ class ServerTemplateForm extends AbstractType
                 ]);
             });
 
-        // Register all possible extra field names
-        foreach ($this->templateRepository->getAllExtraFieldNames() as $fieldName) {
+        // Register all possible field names
+        foreach ($this->templateRepository->getAllFieldNames() as $fieldName) {
             $builder->addDependent($fieldName, 'template', function (DependentField $field, ?string $templateId) use ($fieldName) {
                 $template = $templateId ? $this->templateRepository->find($templateId) : null;
                 if (!$template) {
                     return;
                 }
 
-                foreach ($template->getExtraFields() as $extraField) {
-                    if ($extraField->fieldName === $fieldName) {
-                        $field->add($extraField->fieldType, $extraField->options);
+                foreach ($template->getFields() as $templateField) {
+                    if ($templateField['name'] === $fieldName) {
+                        $field->add($templateField['type'], $templateField['options']);
                         return;
                     }
                 }

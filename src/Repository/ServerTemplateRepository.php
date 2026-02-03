@@ -16,22 +16,22 @@ class ServerTemplateRepository extends ServiceEntityRepository
         parent::__construct($registry, ServerTemplate::class);
     }
 
-    /** @return string[] All unique extra field names across all templates */
-    public function getAllExtraFieldNames(): array
+    /** @return string[] All unique field names across all templates */
+    public function getAllFieldNames(): array
     {
         $templates = $this->findAll();
         $names = [];
 
         foreach ($templates as $template) {
-            foreach ($template->getExtraFields() as $field) {
-                $names[$field->fieldName] = true;
+            foreach ($template->getFieldNames() as $name) {
+                $names[$name] = true;
             }
         }
 
         return array_keys($names);
     }
 
-    /** @return array<string, string> [name => id] */
+    /** @return array<string, string> [label => value] */
     public function getCategoryChoices(): array
     {
         $templates = $this->findAll();
@@ -40,7 +40,6 @@ class ServerTemplateRepository extends ServiceEntityRepository
         foreach ($templates as $template) {
             $cat = $template->getCategory();
             if ($cat && !isset($categories[$cat])) {
-                // Convert 'game' to 'Game Servers', etc.
                 $label = ucfirst($cat) . ' Servers';
                 $categories[$label] = $cat;
             }
@@ -49,7 +48,7 @@ class ServerTemplateRepository extends ServiceEntityRepository
         return $categories;
     }
 
-    /** @return array<string, string> [name => id] for templates in a category */
+    /** @return array<string, string> [name => id] */
     public function getTemplateChoicesByCategory(string $category): array
     {
         $templates = $this->findBy(['category' => $category]);
