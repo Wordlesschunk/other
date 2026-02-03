@@ -3,7 +3,10 @@
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -64,6 +67,15 @@ class MealPlannerForm extends AbstractType
                     'required' => false,
                 ],
             ],
+            'quantity' => [
+                'type' => IntegerType::class,
+                'options' => [
+                    'label' => 'How many pizzas?',
+                    'attr' => ['min' => 1, 'max' => 10],
+                    'data' => 1,
+                    'required' => true,
+                ],
+            ],
         ],
         'sandwich' => [
             'bread' => [
@@ -76,6 +88,14 @@ class MealPlannerForm extends AbstractType
                     ],
                     'placeholder' => 'Choose bread type',
                     'required' => true,
+                ],
+            ],
+            'fillingNotes' => [
+                'type' => TextType::class,
+                'options' => [
+                    'label' => 'Custom filling',
+                    'attr' => ['placeholder' => 'e.g. extra pickles'],
+                    'required' => false,
                 ],
             ],
         ],
@@ -92,6 +112,21 @@ class MealPlannerForm extends AbstractType
                     'required' => true,
                 ],
             ],
+            'extraCheese' => [
+                'type' => CheckboxType::class,
+                'options' => [
+                    'label' => 'Add extra parmesan?',
+                    'required' => false,
+                ],
+            ],
+            'specialRequest' => [
+                'type' => TextareaType::class,
+                'options' => [
+                    'label' => 'Special requests',
+                    'attr' => ['placeholder' => 'Any allergies?', 'rows' => 2],
+                    'required' => false,
+                ],
+            ],
         ],
         'cereal' => [
             'milk' => [
@@ -104,6 +139,39 @@ class MealPlannerForm extends AbstractType
                         'Almond' => 'almond',
                     ],
                     'placeholder' => 'Choose milk type',
+                    'required' => false,
+                ],
+            ],
+            'bowls' => [
+                'type' => IntegerType::class,
+                'options' => [
+                    'label' => 'Number of bowls',
+                    'attr' => ['min' => 1, 'max' => 5],
+                    'data' => 1,
+                    'required' => false,
+                ],
+            ],
+        ],
+        'toast' => [
+            'slices' => [
+                'type' => IntegerType::class,
+                'options' => [
+                    'label' => 'Number of slices',
+                    'attr' => ['min' => 1, 'max' => 4],
+                    'data' => 2,
+                    'required' => true,
+                ],
+            ],
+            'spread' => [
+                'type' => ChoiceType::class,
+                'options' => [
+                    'choices' => [
+                        'Butter' => 'butter',
+                        'Jam' => 'jam',
+                        'Peanut Butter' => 'peanut_butter',
+                        'Avocado' => 'avocado',
+                    ],
+                    'placeholder' => 'Choose a spread',
                     'required' => false,
                 ],
             ],
