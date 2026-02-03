@@ -2,9 +2,9 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\SavedServerConfig;
 use App\Form\ServerTemplateForm;
 use App\Repository\SavedServerConfigRepository;
-use App\Repository\ServerTemplateRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -21,43 +21,42 @@ final class ServerTemplateSelector extends AbstractController
     use DefaultActionTrait;
 
     #[LiveProp]
-    public ?string $loadedConfigId = null;
+    public ?int $loadedConfigId = null;
 
     #[LiveProp]
     public ?string $loadedConfigName = null;
 
     public function __construct(
         private readonly SavedServerConfigRepository $savedConfigRepository,
-        private readonly ServerTemplateRepository $templateRepository,
     ) {}
 
+    /** @return SavedServerConfig[] */
     public function getSavedConfigs(): array
     {
         return $this->savedConfigRepository->findAll();
     }
 
     #[LiveAction]
-    public function loadConfig(#[LiveArg] string $configId): void
+    public function loadConfig(#[LiveArg] int $configId): void
     {
         $savedConfig = $this->savedConfigRepository->find($configId);
         if (!$savedConfig) {
             return;
         }
 
-        $categoryId = $this->templateRepository->getCategoryForTemplate($savedConfig->templateId);
-        
-        // Build the form data with saved values
+        $template = $savedConfig->getTemplate();
+
         $formData = array_merge(
             [
-                'category' => $categoryId,
-                'template' => $savedConfig->templateId,
+                'category' => $template->getCategory(),
+                'template' => $template->getId(),
             ],
-            $savedConfig->config
+            $savedConfig->getConfig()
         );
 
         $this->formValues = $formData;
         $this->loadedConfigId = $configId;
-        $this->loadedConfigName = $savedConfig->name;
+        $this->loadedConfigName = $savedConfig->getName();
     }
 
     #[LiveAction]

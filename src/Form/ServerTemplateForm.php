@@ -13,7 +13,7 @@ use Symfonycasts\DynamicForms\DynamicFormBuilder;
 class ServerTemplateForm extends AbstractType
 {
     public function __construct(
-        private readonly ServerTemplateRepository $repository,
+        private readonly ServerTemplateRepository $templateRepository,
     ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -22,27 +22,29 @@ class ServerTemplateForm extends AbstractType
 
         $builder
             ->add('category', ChoiceType::class, [
-                'choices' => $this->repository->getCategoryChoices(),
+                'choices' => $this->templateRepository->getCategoryChoices(),
                 'placeholder' => 'Select server category',
                 'label' => 'Server Category',
             ])
-            ->addDependent('template', 'category', function (DependentField $field, ?string $categoryId) {
-                $category = $categoryId ? $this->repository->findCategory($categoryId) : null;
+            ->addDependent('template', 'category', function (DependentField $field, ?string $category) {
+                $choices = $category
+                    ? $this->templateRepository->getTemplateChoicesByCategory($category)
+                    : [];
 
                 $field->add(ChoiceType::class, [
-                    'choices' => $category?->getTemplateChoices() ?? [],
+                    'choices' => $choices,
                     'placeholder' => $category
                         ? 'Select a template'
                         : 'Select a category first',
-                    'disabled' => null === $category,
+                    'disabled' => !$category,
                     'label' => 'Server Template',
                 ]);
             });
 
         // Register all possible extra field names
-        foreach ($this->repository->getAllExtraFieldNames() as $fieldName) {
+        foreach ($this->templateRepository->getAllExtraFieldNames() as $fieldName) {
             $builder->addDependent($fieldName, 'template', function (DependentField $field, ?string $templateId) use ($fieldName) {
-                $template = $templateId ? $this->repository->findTemplate($templateId) : null;
+                $template = $templateId ? $this->templateRepository->find($templateId) : null;
                 if (!$template) {
                     return;
                 }
