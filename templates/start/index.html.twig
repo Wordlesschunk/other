@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello StartController!{% endblock %}
+{% block title %}Server Template Selector{% endblock %}
 
 {% block body %}
 <style>
@@ -9,9 +9,10 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1>Server Template Selector 🖥️</h1>
+    <p>Choose a server category and template to configure your server.</p>
 
-    <twig:MealPlanner />
+    <twig:ServerTemplateSelector />
 
 </div>
 {% endblock %}
