@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% set cursor = form.vars.cursor %}
+
+{% block title %}Job Application - Step {{ cursor.stepIndex + 1 }} of {{ cursor.totalSteps }}{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 600px; margin: 40px auto;">
+    <h1>Job Application</h1>
+
+    {# Progress indicator using FormFlowCursor #}
+    <div class="progress-steps" style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        {% for step in cursor.steps %}
+            {% set isCurrent = step == cursor.currentStep %}
+            {% set isPast = loop.index0 < cursor.stepIndex %}
+            <div class="step"
+                 style="flex: 1; text-align: center; padding: 10px; 
+                        {% if isCurrent %}
+                            background: #007bff; color: white;
+                        {% elseif isPast %}
+                            background: #28a745; color: white;
+                        {% else %}
+                            background: #e9ecef;
+                        {% endif %}
+                        border-radius: 4px; margin: 0 5px;">
+                {{ loop.index }}. {{ step|replace({'_': ' '})|title }}
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Current step title #}
+    <h2 style="margin-bottom: 20px;">
+        {{ cursor.currentStep|replace({'_': ' '})|title }}
+    </h2>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_widget(form) }}
+    {{ form_end(form) }}
+</div>
+
+<style>
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn:hover { opacity: 0.9; }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-check {
+        margin-bottom: 8px;
+    }
+    .form-check input {
+        width: auto;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
