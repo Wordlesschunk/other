@@ -2,13 +2,12 @@
 
 namespace App\Form;
 
-use App\Form\JobApplication\AvailabilityType;
-use App\Form\JobApplication\ExperienceType;
-use App\Form\JobApplication\PersonalInfoType;
+use App\Form\JobApplication\Step1Type;
+use App\Form\JobApplication\Step2Type;
+use App\Model\JobApplication;
 use Symfony\Component\Form\Flow\AbstractFlowType;
 use Symfony\Component\Form\Flow\FormFlowBuilderInterface;
 use Symfony\Component\Form\Flow\Type\NavigatorFlowType;
-use App\Model\JobApplication;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class JobApplicationFlowType extends AbstractFlowType
@@ -16,9 +15,8 @@ class JobApplicationFlowType extends AbstractFlowType
     public function buildFormFlow(FormFlowBuilderInterface $builder, array $options): void
     {
         $builder
-            ->addStep('personal_info', PersonalInfoType::class)
-            ->addStep('experience', ExperienceType::class)
-            ->addStep('availability', AvailabilityType::class);
+            ->addStep('step1', Step1Type::class)
+            ->addStep('step2', Step2Type::class);
 
         $builder->add('navigator', NavigatorFlowType::class);
     }
